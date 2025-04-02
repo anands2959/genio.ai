@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
       allowedOrigins: ["*"]
     },
   },
+  output: "standalone",
   async redirects() {
     return [];
   },
