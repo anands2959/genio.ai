@@ -2,9 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  distDir: ".next",
-  poweredByHeader: false,
-  generateEtags: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -17,7 +14,6 @@ const nextConfig: NextConfig = {
       allowedOrigins: ["*"]
     },
   },
-  output: "standalone",
   async redirects() {
     return [];
   },

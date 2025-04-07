@@ -83,7 +83,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
                     {/* Credits Usage Section */}
 
-                    <div className="absolute bottom-15 left-0 right-0 p-4 border-t border-white/10 bg-black/30 backdrop-blur-sm">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 bg-black/30 backdrop-blur-sm">
                         <div className="space-y-2">
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-gray-400">Credits Used</span>
@@ -95,7 +95,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                                     style={{ width: `${(creditsUsed / totalCredits) * 100}%` }}
                                 />
                             </div>
-                            <Link href="/dashboard/billing" className="block mt-10 w-full px-4 py-3 text-center text-white font-medium bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 border border-white/10">
+                            <Link href="/dashboard/billing" className="block mt-6 w-full px-4 py-3 text-center text-white font-medium bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 border border-white/10">
                                 Upgrade Plan
                             </Link>
 

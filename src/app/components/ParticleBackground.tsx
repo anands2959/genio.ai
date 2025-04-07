@@ -24,7 +24,7 @@ const ParticleBackground: React.FC = () => {
     if (!ctx) return;
 
     const particles: Particle[] = [];
-    const particleCount = 120;
+    const particleCount = 100;
     const colors = ['#9333EA', '#DB2777', '#2563EB'];
     const connectionDistance = 150;
     const cursorRadius = 100;

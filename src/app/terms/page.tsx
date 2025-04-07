@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import ParticleBackground from '../components/ParticleBackground';
+import Footer from '../components/Footer';
 
 const TermsAndConditions = () => {
   return (
@@ -106,29 +107,7 @@ const TermsAndConditions = () => {
           </div>
         </div>
       </div>
-      <footer className="relative z-10 border-t border-gray-800 mt-16 py-8 backdrop-blur-sm bg-black/30">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="flex items-center space-x-2">
-              <Image src="/genio-logo.svg" alt="Genio AI Logo" width={24} height={24} className="rounded-lg" />
-              <span className="text-sm font-medium gradient-text">Genio AI</span>
-            </div>
-            <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Terms</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a>
-            </div>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Twitter</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">GitHub</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">LinkedIn</a>
-            </div>
-          </div>
-          <div className="text-center text-gray-500 text-sm mt-4">
-            © {new Date().getFullYear()} Genio AI. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
