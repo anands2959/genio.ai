@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { toast } from 'react-hot-toast';
+import ReactMarkdown from 'react-markdown';
 
 const BlogGenerationPage = () => {
   const [content, setContent] = useState('');
@@ -31,26 +33,45 @@ const BlogGenerationPage = () => {
   };
 
   const handleGenerate = async () => {
+    if (!title.trim()) {
+      toast.error('Please enter a blog title');
+      return;
+    }
+
     if (!topicDescription.trim()) {
-      alert('Please describe your blog topic first');
+      toast.error('Please describe your blog topic');
       return;
     }
 
     setIsGenerating(true);
     try {
-      // Simulated AI generation based on topic description, tone, and length
-      const generatedContent = await new Promise((resolve) => {
-        setTimeout(() => {
-          const wordCount = length === 'short' ? 300 : length === 'medium' ? 600 : 1000;
-          const intro = `Based on your topic: "${topicDescription}", here's a ${tone} blog post:\n\n`;
-          const simulatedContent = `This is a ${wordCount}-word ${tone} blog post about ${topicDescription}. The content will be generated using advanced AI algorithms to ensure high quality and relevance to your topic.`;
-          resolve(intro + simulatedContent);
-        }, 2000);
+      const response = await fetch('/api/blog', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          topicDescription,
+          tone,
+          length
+        })
       });
 
-      setContent(generatedContent);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate content');
+      }
+
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setContent(data.content);
+      toast.success('Blog content generated successfully!');
     } catch (error) {
-      alert('Failed to generate content. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to generate content. Please try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -92,10 +113,10 @@ const BlogGenerationPage = () => {
                   value={topicDescription}
                   onChange={(e) => setTopicDescription(e.target.value)}
                   placeholder="Describe your blog topic in detail. What would you like to write about?"
-                  className="w-full h-[300px] bg-black/30 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500/50 transition-all duration-300 mb-4 resize-none"
+                  className="w-full h-[150px] bg-black/30 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500/50 transition-all duration-300 mb-4 resize-none"
                 />
                 
-                <div className="flex justify-end text-sm text-gray-400 mt-2 space-x-4">
+                <div className="flex justify-end text-sm text-gray-400 mt-1 space-x-4">
                   {/* <span>{topicDescription.length} characters</span> */}
                   <span>{topicDescription.split(/\s+/).filter(Boolean).length} words</span>
                 </div>
@@ -160,11 +181,20 @@ const BlogGenerationPage = () => {
                 </div>
               </div>
               
-              <div className="prose prose-invert max-w-none">
-                {title && <h1 className="text-2xl font-bold text-white mb-4">{title}</h1>}
-                <div className="text-gray-300 whitespace-pre-wrap">
+              <div className="prose prose-invert max-w-none overflow-y-auto max-h-[calc(100vh-200px)]">
+                <ReactMarkdown
+                  components={{
+                    h1: ({node, ...props}) => <h1 className="text-2xl font-bold text-white mb-4" {...props} />,
+                    h2: ({node, ...props}) => <h2 className="text-xl font-semibold text-white mt-6 mb-3" {...props} />,
+                    h3: ({node, ...props}) => <h3 className="text-lg font-medium text-white mt-4 mb-2" {...props} />,
+                    p: ({node, ...props}) => <p className="text-gray-300 mb-4" {...props} />,
+                    ul: ({node, ...props}) => <ul className="list-disc list-inside space-y-2 mb-4 text-gray-300" {...props} />,
+                    li: ({node, ...props}) => <li className="text-gray-300" {...props} />,
+                    blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-purple-500 pl-4 italic text-gray-400 my-4" {...props} />
+                  }}
+                >
                   {content || 'Your generated content will appear here...'}
-                </div>
+                </ReactMarkdown>
               </div>
             </div>
           </div>

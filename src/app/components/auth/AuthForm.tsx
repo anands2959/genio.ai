@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { FaGoogle, FaGithub, FaArrowLeft } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import toast from 'react-hot-toast';
 import VerificationModal from './VerificationModal';
 
 interface AuthFormProps {
@@ -31,7 +32,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSubmit }) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
+  
+    const loadingToast = toast.loading('Please wait...', {
+      duration: Infinity,
+      position: 'bottom-right'
+    });
+  
     try {
       if (!isLogin) {
         const response = await fetch('/api/auth/register', {
@@ -43,29 +49,50 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSubmit }) => {
             password: formData.password,
           }),
         });
-
+  
         const data = await response.json();
-
+  
         if (!response.ok) {
           throw new Error(data.error || 'Registration failed');
         }
-
+  
+        toast.dismiss(loadingToast);
+        toast.success('Account created successfully! Please verify your email.', {
+          duration: 5000,
+          position: 'bottom-right'
+        });
         setRegistrationEmail(formData.email);
         setShowVerification(true);
       } else {
         const result = await signIn('credentials', {
           email: formData.email,
           password: formData.password,
-          redirect: true,
-          callbackUrl: '/dashboard'
+          redirect: false
         });
-
+  
         if (result?.error) {
           throw new Error(result.error);
         }
+  
+        toast.dismiss(loadingToast);
+        toast.success('Logged in successfully!', {
+          duration: 3000,
+          position: 'bottom-right'
+        });
+        
+        // Delay the redirect to allow toast to be visible
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000);
       }
     } catch (err: any) {
-      setError(err.message);
+      const errorMessage = err.message;
+      setError(errorMessage);
+      toast.dismiss(loadingToast);
+      toast.error(errorMessage, {
+        duration: 5000,
+        position: 'bottom-right'
+      });
     } finally {
       setLoading(false);
     }

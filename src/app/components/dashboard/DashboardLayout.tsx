@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 interface MenuItem {
     id: string;
@@ -145,7 +146,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                                         </Link>
                                         <button 
                                             onClick={() => {
+                                                const loadingToast = toast.loading('Signing out...');
                                                 signOut({ redirect: false }).then(() => {
+                                                    toast.dismiss(loadingToast);
+                                                    toast.success('Logged out successfully!', {
+                                                        duration: 3000,
+                                                        position: 'bottom-right'
+                                                    });
                                                     router.push('/');
                                                 });
                                             }} 

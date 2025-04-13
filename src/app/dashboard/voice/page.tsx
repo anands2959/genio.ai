@@ -184,7 +184,7 @@ const VoiceGenerationPage = () => {
                 ) : (
                   <div className="text-center space-y-4">
                     <div className="p-4 rounded-full bg-purple-500/20 inline-block">
-                      <Image src="/voice-icon.svg" alt="Voice" width={32} height={32} />
+                      <Image src="/voice-icon.svg" alt="Voice" width={32} height={32} className='invert' />
                     </div>
                     <p className="text-gray-400">Your generated audio will appear here</p>
                   </div>

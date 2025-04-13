@@ -195,7 +195,7 @@ const VideoGenerationPage = () => {
                 ) : (
                   <div className="text-center space-y-4">
                     <div className="p-4 rounded-full bg-purple-500/20 inline-block">
-                      <Image src="/video-icon.svg" alt="Video" width={32} height={32} />
+                      <Image src="/video-icon.svg" alt="Video" width={32} height={32} className='invert' />
                     </div>
                     <p className="text-gray-400">Your generated video will appear here</p>
                   </div>
