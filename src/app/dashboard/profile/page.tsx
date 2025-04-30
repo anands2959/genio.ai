@@ -201,62 +201,9 @@ const ProfileSettings = () => {
             </form>
           </div>
 
-          <div className="bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-6">Notification Preferences</h3>
-            <div className="space-y-4">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="email"
-                  checked={formData.notifications.email}
-                  onChange={handleInputChange}
-                  className="w-5 h-5 rounded border-white/10 text-purple-500 focus:ring-purple-500 focus:ring-offset-0 bg-black/50"
-                />
-                <span className="text-white">Email Notifications</span>
-              </label>
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="push"
-                  checked={formData.notifications.push}
-                  onChange={handleInputChange}
-                  className="w-5 h-5 rounded border-white/10 text-purple-500 focus:ring-purple-500 focus:ring-offset-0 bg-black/50"
-                />
-                <span className="text-white">Push Notifications</span>
-              </label>
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="marketing"
-                  checked={formData.notifications.marketing}
-                  onChange={handleInputChange}
-                  className="w-5 h-5 rounded border-white/10 text-purple-500 focus:ring-purple-500 focus:ring-offset-0 bg-black/50"
-                />
-                <span className="text-white">Marketing Updates</span>
-              </label>
-            </div>
-          </div>
         </div>
 
         <div className="space-y-6">
-          <div className="bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-4">Profile Completion</h3>
-            <div className="relative pt-1">
-              <div className="flex mb-2 items-center justify-between">
-                <div>
-                  <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-purple-600 bg-purple-200">
-                    {calculateProfileCompletion()}%
-                  </span>
-                </div>
-              </div>
-              <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-purple-200">
-                <div
-                  style={{ width: `${calculateProfileCompletion()}%` }}
-                  className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500"
-                ></div>
-              </div>
-            </div>
-          </div>
 
           <div className="bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
             <h3 className="text-xl font-semibold text-white mb-6">Account Security</h3>
@@ -267,12 +214,12 @@ const ProfileSettings = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
-              <button className="w-full text-left px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white hover:bg-white/5 transition-all duration-300 flex justify-between items-center">
+              {/* <button className="w-full text-left px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white hover:bg-white/5 transition-all duration-300 flex justify-between items-center">
                 <span>Two-Factor Authentication</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

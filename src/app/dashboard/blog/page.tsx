@@ -45,7 +45,7 @@ const BlogGenerationPage = () => {
 
     setIsGenerating(true);
     try {
-      const response = await fetch('/api/blog', {
+      const response = await fetch('/api/blog/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

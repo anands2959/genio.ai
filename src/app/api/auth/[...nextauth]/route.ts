@@ -86,11 +86,17 @@ export const authOptions = {
       return token;
     },
     async session({ session, token }: { session: Session; token: JWT }): Promise<ExtendedSession> {
+      // Fetch user from database to get latest profile picture
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email! }
+      });
+      
       return {
         ...session,
         user: {
           ...session.user,
           provider: token.provider,
+          image: user?.profilePicture || session.user.image,
         },
       };
     },

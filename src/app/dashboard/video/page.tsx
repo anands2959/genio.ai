@@ -4,8 +4,11 @@ import React, { useState } from 'react';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import toast from 'react-hot-toast';
+import { useSession } from 'next-auth/react';
 
 const VideoGenerationPage = () => {
+  const { data: session } = useSession();
   const [script, setScript] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [style, setStyle] = useState('cinematic');
@@ -13,6 +16,8 @@ const VideoGenerationPage = () => {
   const [resolution, setResolution] = useState('1080p');
   const [generatedVideoUrl, setGeneratedVideoUrl] = useState('');
   const [ratio, setRatio] = useState('16:9');
+  const [service, setService] = useState('modelscope');
+  // const [remainingCredits, setRemainingCredits] = useState<number | null>(null);
 
   // Calculate estimated credits based on duration, resolution and style
   const calculateEstimatedCredits = () => {
@@ -40,17 +45,47 @@ const VideoGenerationPage = () => {
 
   const handleGenerate = async () => {
     if (!script.trim()) {
-      alert('Please enter a script or description for your video');
+      toast.error('Please enter a script or description for your video');
+      return;
+    }
+
+    if (!session?.user?.email) {
+      toast.error('Please sign in to generate videos');
       return;
     }
 
     setIsGenerating(true);
+    const loadingToast = toast.loading('Generating your video...');
+
     try {
-      // Simulated video generation
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      setGeneratedVideoUrl('dummy-video-url'); // This would be replaced with actual generated video URL
+      const response = await fetch('/api/video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          script,
+          style,
+          duration,
+          resolution,
+          ratio,
+          service
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate video');
+      }
+
+      setGeneratedVideoUrl(data.videoUrl);
+      // setRemainingCredits(data.remainingCredits);
+      toast.success('Video generated successfully!', { id: loadingToast });
     } catch (error) {
-      alert('Failed to generate video. Please try again.');
+      console.error('Video generation error:', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to generate video',
+        { id: loadingToast }
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -151,6 +186,23 @@ const VideoGenerationPage = () => {
                     <option value="2k">2K QHD</option>
                     <option value="4k">4K Ultra HD</option>
                   </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-400">AI Service</label>
+                  <select
+                    value={service}
+                    onChange={(e) => setService(e.target.value)}
+                    className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500/50 transition-all duration-300"
+                  >
+                    <option value="modelscope">ModelScope</option>
+                    <option value="pika">Pika Labs</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {service === 'modelscope' ? 
+                      'Best for realistic videos with detailed control' :
+                      'Optimized for creative and artistic videos'}
+                  </p>
                 </div>
 
                 {/* Credit Usage Section */}

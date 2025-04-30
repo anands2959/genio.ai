@@ -10,6 +10,20 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Blog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  category  String
+  userId    String   @db.ObjectId
+  status    String   @default("draft")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("blogs")
+}
+
 model User {
   id                     String    @id @default(auto()) @map("_id") @db.ObjectId
   name                   String
@@ -19,8 +33,35 @@ model User {
   isVerified             Boolean   @default(false)
   verificationToken      String?
   verificationTokenExpiry DateTime?
+  blogs                  Blog[]
+  videos                 Video[]
+  images                 Image[]
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
   @@map("users")
+}
+
+model Video {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  prompt    String
+  style     String
+  videoUrl  String
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("videos")
+}
+
+model Image {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  prompt    String
+  style     String
+  imageUrl  String
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("images")
 }
