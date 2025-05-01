@@ -33,6 +33,7 @@ model User {
   isVerified             Boolean   @default(false)
   verificationToken      String?
   verificationTokenExpiry DateTime?
+  credits                Int       @default(1000)
   blogs                  Blog[]
   videos                 Video[]
   images                 Image[]

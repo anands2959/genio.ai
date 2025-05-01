@@ -20,6 +20,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
+    // Get user and check credits
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Calculate credit cost based on video duration
+    const creditCost = Math.ceil(duration * 20); // 20 credits per second of video
+
+    if (user.credits < creditCost) {
+      return NextResponse.json({ 
+        error: 'Insufficient credits', 
+        required: creditCost, 
+        available: user.credits 
+      }, { status: 402 });
+    }
+
     // Enhance the prompt based on the selected style
     const stylePrompts = {
       natural: 'realistic, high-quality, photorealistic',
@@ -54,6 +74,12 @@ export async function POST(req: NextRequest) {
 
     // Upload video to Cloudinary
     const videoUrl = await uploadVideo(videoData);
+
+    // Deduct credits from user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { credits: user.credits - creditCost }
+    });
 
     // Save video information to database
     const video = await prisma.video.create({

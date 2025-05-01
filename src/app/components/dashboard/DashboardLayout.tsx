@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useCredits } from '@/app/hooks/useCredits';
 
 interface MenuItem {
     id: string;
@@ -32,8 +33,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     const router = useRouter();
     const { data: session } = useSession();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const [creditsUsed] = useState(750); // This would be fetched from your backend
-    const [totalCredits] = useState(1000); // This would be fetched from your backend
+    const { credits, loading } = useCredits();
     const profileRef = useRef<HTMLDivElement>(null);
 
     const activeItem = menuItems.find(item => item.href === pathname)?.id || 'dashboard';
@@ -87,13 +87,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 bg-black/30 backdrop-blur-sm">
                         <div className="space-y-2">
                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-400">Credits Used</span>
-                                <span className="text-white font-medium">{creditsUsed}/{totalCredits}</span>
+                                <span className="text-gray-400">Available Credits</span>
+                                <span className="text-white font-medium">{loading ? '...' : credits}</span>
                             </div>
                             <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-gradient-to-r from-purple-600 to-pink-600 rounded-full transition-all duration-300"
-                                    style={{ width: `${(creditsUsed / totalCredits) * 100}%` }}
+                                    style={{ width: `${loading ? 0 : ((1000 - (credits || 0)) / 1000) * 100}%` }}
                                 />
                             </div>
                             <Link href="/dashboard/billing" className="block mt-6 w-full px-4 py-3 text-center text-white font-medium bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 border border-white/10">

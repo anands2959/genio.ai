@@ -7,10 +7,12 @@ import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { useCredits } from '@/app/hooks/useCredits';
 
 const ImageGenerationPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { refreshCredits } = useCredits();
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedModel, setSelectedModel] = useState('stable-diffusion');
@@ -107,6 +109,8 @@ const ImageGenerationPage = () => {
       setTimeout(() => setGeneratedImageUrl(result.image.imageUrl), 1000);
       toast.dismiss(loadingToast);
       toast.success('Image generated successfully!');
+      // Refresh credits after successful generation
+      await refreshCredits();
     } catch (error: any) {
       toast.dismiss(loadingToast);
       toast.error(error.message || 'Failed to generate image. Please try again.');

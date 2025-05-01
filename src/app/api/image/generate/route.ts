@@ -20,6 +20,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
+    // Get user and check credits
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Calculate credit cost based on image size
+    const [width, height] = size.split('x').map(Number);
+    const creditCost = Math.ceil((width * height) / (512 * 512) * 10); // Base cost of 10 credits for 512x512
+
+    if (user.credits < creditCost) {
+      return NextResponse.json({ 
+        error: 'Insufficient credits', 
+        required: creditCost, 
+        available: user.credits 
+      }, { status: 402 });
+    }
+
     // Enhance the prompt based on the selected style
     const stylePrompts = {
       natural: 'realistic, high-quality, photorealistic',
@@ -31,9 +52,6 @@ export async function POST(req: NextRequest) {
     };
 
     const enhancedPrompt = `${prompt}, ${stylePrompts[style as keyof typeof stylePrompts]}`;
-
-    // Parse size dimensions
-    const [width, height] = size.split('x').map(Number);
 
     // Set timeout for the API request
     const timeout = 120000; // 2 minutes timeout
@@ -79,14 +97,11 @@ export async function POST(req: NextRequest) {
     // Upload image to Cloudinary
     const imageUrl = await uploadImage(imageData);
 
-    // Get user from database to get their ObjectId
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
+    // Deduct credits from user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { credits: { decrement: creditCost } }
     });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
 
     // Save image information to database
     const image = await prisma.image.create({
