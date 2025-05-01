@@ -35,18 +35,37 @@ export async function POST(req: NextRequest) {
     // Parse size dimensions
     const [width, height] = size.split('x').map(Number);
 
-    // Generate image using Stable Diffusion
-    const response = await hf.textToImage({
-      inputs: enhancedPrompt,
-      model: 'stabilityai/stable-diffusion-xl-base-1.0',
-      parameters: {
-        negative_prompt: negativePrompt || 'blurry, bad quality, distorted',
-        width: width,
-        height: height,
-        num_inference_steps: 50,
-        guidance_scale: 7.5
+    // Set timeout for the API request
+    const timeout = 120000; // 2 minutes timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    // Generate image using Stable Diffusion with retry mechanism
+    let response;
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        response = await hf.textToImage({
+          inputs: enhancedPrompt,
+          model: 'stabilityai/stable-diffusion-xl-base-1.0',
+          parameters: {
+            negative_prompt: negativePrompt || 'blurry, bad quality, distorted',
+            width: width,
+            height: height,
+            num_inference_steps: 50,
+            guidance_scale: 7.5
+          }
+        }, { signal: controller.signal });
+        break; // If successful, exit the retry loop
+      } catch (error: any) {
+        retries--;
+        if (retries === 0) throw error;
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, (3 - retries) * 5000));
       }
-    });
+    }
+    
+    clearTimeout(timeoutId);
 
     if (!response) {
       throw new Error('Failed to generate image');
