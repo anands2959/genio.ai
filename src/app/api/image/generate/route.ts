@@ -53,14 +53,19 @@ export async function POST(req: NextRequest) {
 
     const enhancedPrompt = `${prompt}, ${stylePrompts[style as keyof typeof stylePrompts]}`;
 
-    // Set timeout for the API request
-    const timeout = 120000; // 2 minutes timeout
+    // Set timeout for the API request with increased duration
+    const timeout = 180000; // 3 minutes timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      throw new Error('Image generation timed out after 3 minutes');
+    }, timeout);
 
-    // Generate image using Stable Diffusion with retry mechanism
+    // Generate image using Stable Diffusion with enhanced retry mechanism
     let response;
-    let retries = 3;
+    let retries = 5; // Increased retries
+    let lastError;
+
     while (retries > 0) {
       try {
         response = await hf.textToImage({
@@ -76,10 +81,23 @@ export async function POST(req: NextRequest) {
         }, { signal: controller.signal });
         break; // If successful, exit the retry loop
       } catch (error: any) {
+        lastError = error;
         retries--;
-        if (retries === 0) throw error;
-        // Wait before retrying (exponential backoff)
-        await new Promise(resolve => setTimeout(resolve, (3 - retries) * 5000));
+        
+        // Check if it's a timeout error
+        if (error.name === 'AbortError') {
+          throw new Error('Request timed out. Please try again.');
+        }
+        
+        if (retries === 0) {
+          console.error('All retries failed:', lastError);
+          throw new Error('Failed to generate image after multiple attempts. Please try again later.');
+        }
+        
+        // Exponential backoff with longer delays
+        const delay = Math.min((5 - retries) * 8000, 20000); // Max 20 second delay
+        console.log(`Retry attempt ${5 - retries} after ${delay}ms delay`);
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
     
