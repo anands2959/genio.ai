@@ -51,7 +51,7 @@ export const sendVerificationEmail = async (to: string, otp: string) => {
       </head>
       <body style="margin: 0; padding: 0; background-color: #f9fafb;">
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-          <img src="${process.env.NEXT_PUBLIC_APP_URL}/genio-logo.svg" alt="Genio AI Logo" style="display: block; margin: 0 auto 20px; height: 40px;">
+          <img src="https://genioai.anandsharma.info/genio-logo.svg" alt="Genio AI Logo" style="display: block; margin: 0 auto 20px; height: 40px;">
           <h2 style="color: #6B46C1; text-align: center; margin-bottom: 30px;">Welcome to Genio AI!</h2>
           <p style="color: #374151; font-size: 16px; line-height: 24px; margin-bottom: 20px;">Please verify your email address by entering the following verification code:</p>
           <div style="background-color: #f3f4f6; border-radius: 6px; padding: 20px; text-align: center; margin-bottom: 20px;">

@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { useCredits } from '@/app/hooks/useCredits';
+import ImageGrid from '@/app/components/dashboard/ImageGrid';
 
 const ImageGenerationPage = () => {
   const { data: session, status } = useSession();
@@ -20,6 +21,8 @@ const ImageGenerationPage = () => {
   const [generatedImageUrl, setGeneratedImageUrl] = useState('');
   const [negativePrompt, setNegativePrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('natural');
+  const [previousImages, setPreviousImages] = useState([]);
+  const [loadingImages, setLoadingImages] = useState(true);
 
   const imageStyles = [
     { id: 'natural', name: 'Natural', description: 'Realistic and natural looking images' },
@@ -61,7 +64,28 @@ const ImageGenerationPage = () => {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth');
+      return;
     }
+
+    const fetchPreviousImages = async () => {
+      try {
+        const response = await fetch('/api/images/list');
+        const data = await response.json();
+        
+        if (response.ok) {
+          setPreviousImages(data.images);
+        } else {
+          toast.error(data.error || 'Failed to fetch images');
+        }
+      } catch (error) {
+        console.error('Error fetching images:', error);
+        toast.error('Failed to load previous images');
+      } finally {
+        setLoadingImages(false);
+      }
+    };
+
+    fetchPreviousImages();
   }, [status, router]);
 
   const handleGenerate = async () => {
@@ -82,13 +106,17 @@ const ImageGenerationPage = () => {
     }
 
     setIsGenerating(true);
-    const loadingToast = toast.loading('Generating your image... This may take up to 30 seconds.', { duration: 30000 });
+    const loadingToast = toast.loading('Initializing image generation...', { duration: 120000 }); // Increased timeout to 2 minutes
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 110000); // Abort after 110 seconds
+
       const response = await fetch('/api/image/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        signal: controller.signal,
         body: JSON.stringify({
           prompt,
           model: selectedModel,
@@ -98,22 +126,39 @@ const ImageGenerationPage = () => {
         }),
       });
 
+      clearTimeout(timeoutId);
+
+      // Update loading message to show progress
+      toast.loading('Processing your image...', { id: loadingToast });
+
       const result = await response.json();
 
       if (!response.ok || result.error) {
         throw new Error(result.error || 'Image generation failed');
       }
 
-      // Set the immediate preview using base64 data, then update with the uploaded URL
+      // Set the immediate preview using base64 data
       setGeneratedImageUrl(result.image.imageData);
-      setTimeout(() => setGeneratedImageUrl(result.image.imageUrl), 1000);
-      toast.dismiss(loadingToast);
-      toast.success('Image generated successfully!');
+      
+      // Update loading message for final stage
+      toast.loading('Finalizing image...', { id: loadingToast });
+      
+      // Wait for the final URL and update the preview
+      setTimeout(() => {
+        setGeneratedImageUrl(result.image.imageUrl);
+        toast.dismiss(loadingToast);
+        toast.success('Image generated successfully!');
+      }, 1000);
+
       // Refresh credits after successful generation
       await refreshCredits();
     } catch (error: any) {
       toast.dismiss(loadingToast);
-      toast.error(error.message || 'Failed to generate image. Please try again.');
+      if (error.name === 'AbortError') {
+        toast.error('Image generation is taking longer than expected. Please try again.');
+      } else {
+        toast.error(error.message || 'Failed to generate image. Please try again.');
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -146,7 +191,8 @@ const ImageGenerationPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        {/* Image Generation Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -285,6 +331,23 @@ const ImageGenerationPage = () => {
               )}
             </div>
           </div>
+        </motion.div>
+
+        {/* Previous Generations Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="space-y-6"
+        >
+          <h2 className="text-2xl font-bold text-white">Your Previous Generations</h2>
+          {loadingImages ? (
+            <div className="flex justify-center items-center min-h-[200px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+            </div>
+          ) : (
+            <ImageGrid images={previousImages} />
+          )}
         </motion.div>
       </div>
     </DashboardLayout>
