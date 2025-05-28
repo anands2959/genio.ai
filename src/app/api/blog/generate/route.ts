@@ -2,92 +2,87 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY! });
+
+const calculateCreditCost = (length: string, tone: string) => {
+  const lengthMultiplier: Record<string, number> = {
+    'short': 5,
+    'medium': 10,
+    'long': 15,
+    'custom': 20
+  };
+  const toneMultiplier: Record<string, number> = {
+    'professional': 1.2,
+    'casual': 1,
+    'formal': 1.3,
+    'friendly': 1.1
+  };
+  return Math.round(lengthMultiplier[length] * toneMultiplier[tone]);
+};
 
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized', toastType: 'error' }, { status: 401 });
     }
 
-    const data = await req.json();
-    const { title, description, category } = data;
+    const { title, topicDescription, tone, length } = await req.json();
 
-    // Initialize Google's Gemini Pro model with the latest API version
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-pro',
-      generationConfig: {
-        temperature: 0.7,
-        topK: 1,
-        topP: 0.8,
-        maxOutputTokens: 2048,
-      },
-    });
-
-    // Create a professional prompt for blog generation
-    const prompt = `Write a professional and engaging blog post with the following details:
-
-Title: ${title}
-Topic: ${description}
-Category: ${category}
-
-Please ensure the content is:
-- Well-structured with clear paragraphs
-- Engaging and informative
-- Professional in tone
-- SEO-friendly
-- Between 500-800 words`;
-    
-    let generatedContent;
-    try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      generatedContent = response.text();
-      
-      if (!generatedContent) {
-        throw new Error('Empty response from AI model');
-      }
-    } catch (modelError) {
-      console.error('AI model error:', modelError);
-      return NextResponse.json(
-        { error: 'Failed to generate blog content' },
-        { status: 500 }
-      );
+    if (!title?.trim() || !topicDescription?.trim()) {
+      return NextResponse.json({ error: 'Title and topic description are required', toastType: 'error' }, { status: 400 });
     }
 
-    // Save the generated blog to database
-    const blog = await prisma.blog.create({
-      data: {
-        title,
-        content: generatedContent,
-        category,
-        userId: session.user.email,
-        status: 'published',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    });
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!user) return NextResponse.json({ error: 'User not found', toastType: 'error' }, { status: 404 });
 
-    return NextResponse.json({
-      message: 'Blog generated successfully',
-      blog: {
-        id: blog.id,
-        title: blog.title,
-        content: blog.content,
-        category: blog.category,
-        status: blog.status,
-        createdAt: blog.createdAt,
-      },
+    const creditCost = calculateCreditCost(length, tone);
+    if (user.credits < creditCost) {
+      return NextResponse.json({ error: 'Insufficient credits', toastType: 'error' }, { status: 402 });
+    }
+
+    // Initialize the model and generate content
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.0-flash-lite',
+      contents: [{
+        role: 'user',
+        parts: [{ text: `Write a ${length} blog post about ${title}. Here are more details about the topic: ${topicDescription}. 
+The tone should be ${tone}.
+
+Please format the blog post in markdown with appropriate headings, paragraphs, and emphasis where needed. Make it engaging and well-structured.` }]
+      }]
+    });
+    const content = result.text;
+
+    // Save to database and deduct credits
+    await prisma.$transaction([
+      prisma.blog.create({
+        data: {
+          title,
+          content,
+          userId: user.id,
+          category: 'general'
+        }
+      }),
+      prisma.user.update({
+        where: { id: user.id },
+        data: { credits: { decrement: creditCost } }
+      })
+    ]);
+
+    return NextResponse.json({ 
+      content,
+      toastType: 'success'
     });
 
   } catch (error) {
     console.error('Blog generation error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate blog' },
-      { status: 500 }
-    );
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : 'Failed to generate blog content',
+      toastType: 'error'
+    }, { status: 500 });
   }
 }

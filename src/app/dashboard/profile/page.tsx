@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
+import { toast } from 'react-hot-toast';
 
 const ProfileSettings = () => {
   const { data: session, update: updateSession } = useSession();
@@ -31,6 +32,49 @@ const ProfileSettings = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error('New passwords do not match!');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/profile/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update password');
+      }
+
+      toast.success('Password updated successfully!');
+      setShowPasswordModal(false);
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update password');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -198,8 +242,75 @@ const ProfileSettings = () => {
                   <p className="mt-2 text-sm text-green-400 text-center">{successMessage}</p>
                 )}
               </div>
+
+             
             </form>
           </div>
+
+          {showPasswordModal && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+              <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 w-full max-w-md">
+                <h3 className="text-xl font-semibold text-white mb-4">Change Password</h3>
+                <form onSubmit={handlePasswordChange} className="space-y-4">
+                  <div>
+                    <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-400 mb-2">
+                      Current Password
+                    </label>
+                    <input
+                      type="password"
+                      id="currentPassword"
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                      className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="newPassword" className="block text-sm font-medium text-gray-400 mb-2">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      id="newPassword"
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                      className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-400 mb-2">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+                      required
+                    />
+                  </div>
+                  <div className="flex space-x-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordModal(false)}
+                      className="flex-1 px-6 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition-all duration-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
+                    >
+                      {isLoading ? 'Updating...' : 'Update Password'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
         </div>
 
@@ -208,7 +319,7 @@ const ProfileSettings = () => {
           <div className="bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
             <h3 className="text-xl font-semibold text-white mb-6">Account Security</h3>
             <div className="space-y-4">
-              <button className="w-full text-left px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white hover:bg-white/5 transition-all duration-300 flex justify-between items-center">
+              <button className="w-full text-left px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white hover:bg-white/5 transition-all duration-300 flex justify-between items-center" onClick={() => setShowPasswordModal(true)}>
                 <span>Change Password</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
+import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 
 const BlogGenerationPage = () => {
   const [content, setContent] = useState('');
@@ -68,8 +69,10 @@ const BlogGenerationPage = () => {
         throw new Error(data.error);
       }
 
-      setContent(data.content);
-      toast.success('Blog content generated successfully!');
+      if (data.toastType === 'success') {
+        setContent(data.content);
+        toast.success('Blog content generated successfully!');
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to generate content. Please try again.');
     } finally {
@@ -154,16 +157,7 @@ const BlogGenerationPage = () => {
                   </select>
                 </div>
 
-                {/* Credit Usage Section */}
-                <div className="mt-6 p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-400">Estimated Credits</div>
-                    <div className="text-lg font-semibold text-purple-400">{calculateEstimatedCredits()} credits</div>
-                  </div>
-                  <div className="mt-2 text-xs text-gray-500">
-                    Credits vary based on content length and tone
-                  </div>
-                </div>
+                
               </div>
             </div>
 
@@ -172,12 +166,37 @@ const BlogGenerationPage = () => {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-white">Preview</h3>
                 <div className="flex space-x-2">
-                  <button className="p-2 rounded-lg bg-black/30 border border-white/10 hover:border-purple-500/50 transition-all duration-300">
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(content);
+                      toast.success('Content copied to clipboard!');
+                    }}
+                    className="p-2 rounded-lg bg-black/30 border border-white/10 hover:border-purple-500/50 transition-all duration-300"
+                  >
                     <Image src="/content-icon.svg" alt="Copy" width={20} height={20} className='invert'/>
                   </button>
-                  <button className="p-2 rounded-lg bg-black/30 border border-white/10 hover:border-purple-500/50 transition-all duration-300">
-                    <Image src="/download.svg" alt="Download" width={20} height={20} className='invert' />
-                  </button>
+                  <PDFDownloadLink
+                    document={
+                      <Document>
+                        <Page size="A4" style={{ padding: 30 }}>
+                          <View>
+                            <Text style={{ fontSize: 24, marginBottom: 10 }}>{title}</Text>
+                            <Text style={{ fontSize: 14 }}>{content}</Text>
+                          </View>
+                        </Page>
+                      </Document>
+                    }
+                    fileName={`${title.toLowerCase().replace(/\s+/g, '-')}.pdf`}
+                  >
+                    {({ loading }) => (
+                      <button 
+                        className="p-2 rounded-lg bg-black/30 border border-white/10 hover:border-purple-500/50 transition-all duration-300"
+                        disabled={loading || !content}
+                      >
+                        <Image src="/download.svg" alt="Download" width={20} height={20} className='invert' />
+                      </button>
+                    )}
+                  </PDFDownloadLink>
                 </div>
               </div>
               

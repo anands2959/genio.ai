@@ -39,23 +39,34 @@ const AudioGenerationPage = () => {
 
   const handleGenerate = async () => {
     if (!session) {
-      toast.error('Please log in to continue');
+      toast.error('Please log in to continue', {
+        duration: 3000,
+        position: 'top-center',
+      });
       router.push('/auth');
       return;
     }
 
     if (!text.trim()) {
-      toast.error('Please enter some text to generate audio');
+      toast.error('Please enter some text to generate audio', {
+        duration: 3000,
+        position: 'top-center',
+      });
       return;
     }
 
     if (isGenerating) {
-      toast.error('Please wait for the current generation to complete');
+      toast.error('Please wait for the current generation to complete', {
+        duration: 3000,
+        position: 'top-center',
+      });
       return;
     }
 
     setIsGenerating(true);
-    const loadingToast = toast.loading('Generating your audio... This may take a few moments.');
+    const loadingToast = toast.loading('Generating your audio...', {
+      position: 'top-center',
+    });
 
     try {
       const response = await fetch('/api/audio/generate', {
@@ -71,16 +82,44 @@ const AudioGenerationPage = () => {
 
       const result = await response.json();
 
-      if (!response.ok || result.error) {
+      if (!response.ok) {
+        toast.dismiss(loadingToast);
+        if (result.toastType === 'info') {
+          toast.custom(
+            (t) => (
+              <div className="bg-blue-500 text-white px-6 py-4 rounded-lg shadow-lg">
+                <p>{result.error}</p>
+                {result.retryAfter && (
+                  <p className="text-sm mt-2">Retry in {result.retryAfter} seconds</p>
+                )}
+              </div>
+            ),
+            { duration: result.retryAfter ? result.retryAfter * 1000 : 5000, position: 'top-center' }
+          );
+        } else {
+          toast.error(result.error || 'Failed to generate audio', {
+            duration: 5000,
+            position: 'top-center',
+          });
+        }
         throw new Error(result.error || 'Audio generation failed');
       }
 
       setGeneratedAudioUrl(result.audioUrl);
       toast.dismiss(loadingToast);
-      toast.success('Audio generated successfully!');
+      toast.success('Audio generated successfully!', {
+        duration: 3000,
+        position: 'top-center',
+        icon: '🎵',
+      });
     } catch (error: any) {
       toast.dismiss(loadingToast);
-      toast.error(error.message || 'Failed to generate audio. Please try again.');
+      if (!error.message.includes('Audio generation failed')) {
+        toast.error(error.message || 'An unexpected error occurred', {
+          duration: 5000,
+          position: 'top-center',
+        });
+      }
     } finally {
       setIsGenerating(false);
     }

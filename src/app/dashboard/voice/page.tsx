@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 
 const VoiceGenerationPage = () => {
   const [text, setText] = useState('');
@@ -13,34 +15,7 @@ const VoiceGenerationPage = () => {
   const [speed, setSpeed] = useState('medium');
   const [generatedAudioUrl, setGeneratedAudioUrl] = useState('');
 
-  // Calculate estimated credits based on text length, voice style, emotion and speed
-  const calculateEstimatedCredits = () => {
-    const wordCount = text.split(/\s+/).filter(Boolean).length;
-    const baseCredits = Math.ceil(wordCount / 50); // 1 credit per 50 words
-
-    // Voice style multipliers
-    const voiceMultiplier = voice === 'natural' ? 1.0 :
-      voice === 'professional' ? 1.5 :
-      voice === 'casual' ? 1.2 :
-      voice === 'news' ? 1.4 : 1.0;
-
-    // Emotion multipliers
-    const emotionMultiplier = emotion === 'neutral' ? 1.0 :
-      emotion === 'happy' ? 1.2 :
-      emotion === 'sad' ? 1.2 :
-      emotion === 'excited' ? 1.3 :
-      emotion === 'calm' ? 1.1 : 1.0;
-
-    // Speed multipliers
-    const speedMultiplier = speed === 'medium' ? 1.0 :
-      speed === 'slow' ? 1.2 :
-      speed === 'fast' ? 1.3 : 1.0;
-
-    // Calculate total credits with all multipliers
-    const totalCredits = Math.max(1, Math.round(baseCredits * voiceMultiplier * emotionMultiplier * speedMultiplier));
-    return totalCredits;
-  };
-
+ 
   const handleGenerate = async () => {
     if (!text.trim()) {
       alert('Please enter some text to convert to speech');
@@ -49,11 +24,28 @@ const VoiceGenerationPage = () => {
 
     setIsGenerating(true);
     try {
-      // Simulated voice generation
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setGeneratedAudioUrl('dummy-audio-url'); // This would be replaced with actual generated audio URL
+      const response = await fetch('/api/voice/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text,
+          voice,
+          emotion,
+          speed,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate voice');
+      }
+
+      setGeneratedAudioUrl(data.audioUrl);
     } catch (error) {
-      alert('Failed to generate voice. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to generate voice. Please try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -142,16 +134,7 @@ const VoiceGenerationPage = () => {
                   </select>
                 </div>
 
-                {/* Credit Usage Section */}
-                <div className="mt-6 p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-400">Estimated Credits</div>
-                    <div className="text-lg font-semibold text-purple-400">{calculateEstimatedCredits()} credits</div>
-                  </div>
-                  <div className="mt-2 text-xs text-gray-500">
-                    Credits vary based on text length, voice style, emotion and speed
-                  </div>
-                </div>
+               
               </div>
             </div>
 
@@ -169,16 +152,29 @@ const VoiceGenerationPage = () => {
               <div className="flex flex-col items-center justify-center h-[300px] border-2 border-dashed border-white/10 rounded-xl p-6">
                 {generatedAudioUrl ? (
                   <div className="w-full space-y-4">
-                    <div className="w-full h-12 bg-black/30 rounded-lg flex items-center justify-center">
-                      <span className="text-white">Audio Player Placeholder</span>
-                    </div>
-                    <div className="flex justify-center space-x-4">
-                      <button className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300">
-                        Play
-                      </button>
-                      <button className="px-4 py-2 rounded-lg bg-black/30 border border-white/10 text-white hover:border-purple-500/50 transition-all duration-300">
+                    <AudioPlayer
+                      src={generatedAudioUrl}
+                      autoPlay={false}
+                      showJumpControls={false}
+                      customProgressBarSection={[
+                        'CURRENT_TIME',
+                        'PROGRESS_BAR',
+                        'DURATION',
+                      ]}
+                      customControlsSection={[
+                        'MAIN_CONTROLS',
+                        'VOLUME_CONTROLS',
+                      ]}
+                      className="bg-black/30 rounded-lg"
+                    />
+                    <div className="flex justify-center">
+                      <a
+                        href={generatedAudioUrl}
+                        download
+                        className="px-4 py-2 rounded-lg bg-black/30 border border-white/10 text-white hover:border-purple-500/50 transition-all duration-300"
+                      >
                         Download
-                      </button>
+                      </a>
                     </div>
                   </div>
                 ) : (

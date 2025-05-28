@@ -195,7 +195,7 @@ export default function Home() {
       </div>
 
       {/* Pricing Section */}
-      <div id="pricing" className="container mx-auto px-4 py-16 border-t border-gray-800">
+      {/* <div id="pricing" className="container mx-auto px-4 py-16 border-t border-gray-800">
         <h2 className="text-3xl font-bold text-center mb-12 gradient-text">Choose Your Plan</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl hover:transform hover:scale-105 transition-all duration-300 border border-gray-700/50">
@@ -231,7 +231,7 @@ export default function Home() {
             <button className="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded-lg transition">Contact Sales</button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* CTA Section */}
       <div className="container mx-auto px-4 py-16 animate-fade-in" style={{animationDelay: '0.4s'}}>

@@ -65,7 +65,7 @@ const TermsAndConditions = () => {
             </p>
             <ul className="list-disc list-inside text-gray-300 space-y-2 pl-4 mt-4">
               <li>Pay all applicable fees</li>
-              <li>Provide accurate billing information</li>
+              {/* <li>Provide accurate billing information</li> */}
               <li>Accept our refund and cancellation policies</li>
             </ul>
           </section>

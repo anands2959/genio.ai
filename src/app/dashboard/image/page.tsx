@@ -48,18 +48,7 @@ const ImageGenerationPage = () => {
     // },
   ];
 
-  const calculateEstimatedCredits = () => {
-    const sizeMultiplier = {
-      '256x256': 1,
-      '512x512': 2,
-      '1024x1024': 4,
-      '1024x1792': 6,
-      '1792x1024': 6,
-    } as const;
-
-    const modelCost = models.find(m => m.id === selectedModel)?.creditCost || 4;
-    return Math.round(sizeMultiplier[size as keyof typeof sizeMultiplier] * modelCost);
-  };
+ 
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -265,9 +254,7 @@ const ImageGenerationPage = () => {
                             <div className="text-white font-semibold text-sm">{model.name}</div>
                             <div className="text-gray-400 text-xs">{model.description}</div>
                           </div>
-                          <div className="text-purple-400 bg-purple-500/20 px-2 py-3 rounded-full text-xs items-center">
-                            {model.creditCost} credits
-                          </div>
+                         
                         </div>
                       </div>
                     ))}
@@ -289,13 +276,7 @@ const ImageGenerationPage = () => {
                   </select>
                 </div>
 
-                <div className="mt-4 p-4 border border-purple-500/20 rounded-lg bg-purple-500/10">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Estimated Credits</span>
-                    <span className="text-purple-400 font-semibold">{calculateEstimatedCredits()} credits</span>
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">Based on model and resolution</div>
-                </div>
+               
               </div>
             </div>
 

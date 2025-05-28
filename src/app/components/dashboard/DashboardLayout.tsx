@@ -33,7 +33,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     const router = useRouter();
     const { data: session } = useSession();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const { credits, loading } = useCredits();
+    // const { credits, loading } = useCredits();
     const profileRef = useRef<HTMLDivElement>(null);
 
     const activeItem = menuItems.find(item => item.href === pathname)?.id || 'dashboard';
@@ -84,7 +84,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
                     {/* Credits Usage Section */}
 
-                    <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 bg-black/30 backdrop-blur-sm">
+                    {/* <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 bg-black/30 backdrop-blur-sm">
                         <div className="space-y-2">
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-gray-400">Available Credits</span>
@@ -103,7 +103,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         </div>
 
 
-                    </div>
+                    </div> */}
 
                 </div>
 
@@ -140,10 +140,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                                             <Image src="/profile-icon.svg" alt="Profile" width={18} height={18} className="text-gray-400 group-hover:text-white invert" />
                                             <span>Profile Settings</span>
                                         </Link>
-                                        <Link href="/dashboard/billing" className="block w-full text-left px-4 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all duration-300 flex items-center space-x-3">
-                                            <Image src="/billing-icon.svg" alt="Billing" width={18} height={18} className="text-gray-400 group-hover:text-white invert" />
-                                            <span>Billing</span>
-                                        </Link>
+                                        
                                         <button 
                                             onClick={() => {
                                                 const loadingToast = toast.loading('Signing out...');

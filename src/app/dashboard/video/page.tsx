@@ -12,14 +12,13 @@ const VideoGenerationPage = () => {
   const [script, setScript] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [style, setStyle] = useState('cinematic');
-  const [duration, setDuration] = useState('30');
+  const [duration, setDuration] = useState('2');
   const [resolution, setResolution] = useState('1080p');
   const [generatedVideoUrl, setGeneratedVideoUrl] = useState('');
   const [ratio, setRatio] = useState('16:9');
-  const [service, setService] = useState('modelscope');
-  // const [remainingCredits, setRemainingCredits] = useState<number | null>(null);
+  // Remove service state as it's not needed
 
-  // Calculate estimated credits based on duration, resolution and style
+  // Calculate estimated credits based on duration and resolution
   const calculateEstimatedCredits = () => {
     const styleMultiplier = {
       'cinematic': 2,
@@ -31,14 +30,13 @@ const VideoGenerationPage = () => {
     const resolutionMultiplier = {
       '720p': 1,
       '1080p': 1.5,
-      '2k': 2,
-      '4k': 3
+      '4k': 2.5
     } as const;
 
-    const durationInMinutes = parseInt(duration) / 60;
-    const baseCredits = Math.ceil(durationInMinutes * 10); // 10 credits per minute
+    const durationInSeconds = parseInt(duration);
+    const baseCost = Math.ceil(durationInSeconds / 5) * 10; // Match backend calculation
     
-    return Math.max(1, Math.round(baseCredits * 
+    return Math.max(1, Math.round(baseCost * 
       styleMultiplier[style as keyof typeof styleMultiplier] * 
       resolutionMultiplier[resolution as keyof typeof resolutionMultiplier]));
   };
@@ -58,16 +56,14 @@ const VideoGenerationPage = () => {
     const loadingToast = toast.loading('Generating your video...');
 
     try {
-      const response = await fetch('/api/video', {
+      const response = await fetch('/api/video/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          script,
+          prompt: script,
           style,
-          duration,
-          resolution,
-          ratio,
-          service
+          duration: parseInt(duration),
+          quality: resolution
         })
       });
 
@@ -153,13 +149,25 @@ const VideoGenerationPage = () => {
                     onChange={(e) => setDuration(e.target.value)}
                     className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500/50 transition-all duration-300"
                   >
-                    <option value="15">15 seconds</option>
-                    <option value="30">30 seconds</option>
-                    <option value="60">60 seconds</option>
-                    <option value="120">2 minutes</option>
+                    <option value="2">2 seconds</option>
+                    <option value="3">3 seconds</option>
+                    <option value="4">4 seconds</option>
                   </select>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-400">Resolution</label>
+                  <select
+                    value={resolution}
+                    onChange={(e) => setResolution(e.target.value)}
+                    className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500/50 transition-all duration-300"
+                  >
+                    <option value="720p">720p HD</option>
+                    <option value="1080p">1080p Full HD</option>
+                    <option value="4k">4K Ultra HD</option>
+                  </select>
+                </div>
+                
                 <div className="space-y-2">
                   <label className="text-sm text-gray-400">Aspect Ratio</label>
                   <select
@@ -187,35 +195,7 @@ const VideoGenerationPage = () => {
                     <option value="4k">4K Ultra HD</option>
                   </select>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm text-gray-400">AI Service</label>
-                  <select
-                    value={service}
-                    onChange={(e) => setService(e.target.value)}
-                    className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500/50 transition-all duration-300"
-                  >
-                    <option value="modelscope">ModelScope</option>
-                    <option value="pika">Pika Labs</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {service === 'modelscope' ? 
-                      'Best for realistic videos with detailed control' :
-                      'Optimized for creative and artistic videos'}
-                  </p>
-                </div>
-
-                {/* Credit Usage Section */}
-                <div className="mt-6 p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-400">Estimated Credits</div>
-                    <div className="text-lg font-semibold text-purple-400">{calculateEstimatedCredits()} credits</div>
-                  </div>
-                  <div className="mt-2 text-xs text-gray-500">
-                    Credits vary based on duration, resolution and style
-                  </div>
-                </div>
-              </div>
+               </div>
             </div>
 
             {/* Preview Section */}
