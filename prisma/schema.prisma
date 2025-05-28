@@ -37,6 +37,7 @@ model User {
   blogs                  Blog[]
   videos                 Video[]
   images                 Image[]
+  voices                 Voice[]
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
@@ -65,4 +66,18 @@ model Image {
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("images")
+}
+
+model Voice {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  text      String
+  voice     String
+  emotion   String
+  speed     String
+  audioUrl  String
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("voices")
 }

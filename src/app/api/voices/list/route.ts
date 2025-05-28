@@ -10,7 +10,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user from database first
     const user = await prisma.user.findUnique({
       where: { email: session.user.email }
     });
@@ -19,26 +18,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get user's images using the correct userId
-    const images = await prisma.image.findMany({
+    const voices = await prisma.voice.findMany({
       where: { userId: user.id },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        prompt: true,
-        style: true,
-        imageUrl: true,
-        createdAt: true,
-      },
+      orderBy: { createdAt: 'desc' }
     });
 
-    return NextResponse.json(images);
-
-  } catch (error: any) {
-    console.error('Error fetching images:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to fetch images' },
-      { status: 500 }
-    );
+    return NextResponse.json(voices);
+  } catch (error) {
+    console.error('Error fetching voices:', error);
+    return NextResponse.json({ error: 'Failed to fetch voices' }, { status: 500 });
   }
 }

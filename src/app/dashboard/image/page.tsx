@@ -62,7 +62,7 @@ const ImageGenerationPage = () => {
         const data = await response.json();
         
         if (response.ok) {
-          setPreviousImages(data.images);
+          setPreviousImages(data);
         } else {
           toast.error(data.error || 'Failed to fetch images');
         }
@@ -162,7 +162,7 @@ const ImageGenerationPage = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `generated-image-${Date.now()}.png`;
+      a.download = `genioai-generated-image-${Date.now()}.png`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);

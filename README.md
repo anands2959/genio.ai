@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Genio AI 🚀
 
-## Getting Started
+Genio AI is a powerful AI-powered content generation platform built with Next.js, offering various creative tools for generating images, videos, blog content, and more.
 
-First, run the development server:
+## ✨ Features
 
+- **Multi-Modal Content Generation**
+  - Image Generation 🖼️
+  - Video Creation 🎥
+  - Blog Content Writing ✍️
+  - Voice Generation 🎤
+
+- **User Management**
+  - Secure Authentication (NextAuth.js)
+  - Multiple Login Options (Google, GitHub, Email)
+  - User Profile Management
+  - Credit System
+
+- **Modern UI/UX**
+  - Responsive Dashboard
+  - Real-time Generation Status
+  - Interactive Previews
+  - Smooth Animations (Framer Motion)
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15.2, React, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: MongoDB with Prisma ORM
+- **Authentication**: NextAuth.js
+- **AI Services**: Google Gemini, HuggingFace
+- **Cloud Storage**: Cloudinary
+- **UI Animation**: Framer Motion
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (Latest LTS version)
+- MongoDB Database
+- API Keys for:
+  - Google Gemini
+  - HuggingFace
+  - Cloudinary
+
+### Installation
+
+1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/genio.ai.git
+cd genio.ai
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables
+Create a `.env` file in the root directory with the following variables:
+```env
+MONGODB_URI=your_mongodb_connection_string
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 
-## Learn More
+GITHUB_ID=your_github_client_id
+GITHUB_SECRET=your_github_client_secret
 
-To learn more about Next.js, take a look at the following resources:
+GEMINI_API_KEY=your_gemini_api_key
+HUGGINGFACE_API_KEY=your_huggingface_api_key
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Initialize Prisma
+```bash
+npx prisma generate
+```
 
-## Deploy on Vercel
+5. Run the development server
+```bash
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📦 Project Structure
+
+```
+├── src/
+│   ├── app/              # Next.js app directory
+│   │   ├── api/          # API routes
+│   │   ├── auth/         # Authentication pages
+│   │   ├── components/   # React components
+│   │   ├── dashboard/    # Dashboard pages
+│   │   └── hooks/        # Custom React hooks
+│   ├── lib/              # Utility functions
+│   └── utils/            # Helper functions
+├── prisma/               # Database schema
+└── public/               # Static assets
+```
+
+## 🔒 Security
+
+- Secure authentication with NextAuth.js
+- Protected API routes
+- Input validation
+- Rate limiting
+- Secure credit transactions
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

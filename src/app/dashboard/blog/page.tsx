@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
-import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 
 const BlogGenerationPage = () => {
   const [content, setContent] = useState('');
@@ -16,23 +15,7 @@ const BlogGenerationPage = () => {
   const [length, setLength] = useState('medium');
   const [topicDescription, setTopicDescription] = useState('');
 
-  // Calculate estimated credits based on content length and tone
-  const calculateEstimatedCredits = () => {
-    const lengthMultiplier: Record<string, number> = {
-      'short': 5,
-      'medium': 10,
-      'long': 15,
-      'custom': 20
-    };
-    const toneMultiplier: Record<string, number> = {
-      'professional': 1.2,
-      'casual': 1,
-      'formal': 1.3,
-      'friendly': 1.1
-    };
-    return Math.round(lengthMultiplier[length] * toneMultiplier[tone]);
-  };
-
+  
   const handleGenerate = async () => {
     if (!title.trim()) {
       toast.error('Please enter a blog title');
@@ -175,28 +158,6 @@ const BlogGenerationPage = () => {
                   >
                     <Image src="/content-icon.svg" alt="Copy" width={20} height={20} className='invert'/>
                   </button>
-                  <PDFDownloadLink
-                    document={
-                      <Document>
-                        <Page size="A4" style={{ padding: 30 }}>
-                          <View>
-                            <Text style={{ fontSize: 24, marginBottom: 10 }}>{title}</Text>
-                            <Text style={{ fontSize: 14 }}>{content}</Text>
-                          </View>
-                        </Page>
-                      </Document>
-                    }
-                    fileName={`${title.toLowerCase().replace(/\s+/g, '-')}.pdf`}
-                  >
-                    {({ loading }) => (
-                      <button 
-                        className="p-2 rounded-lg bg-black/30 border border-white/10 hover:border-purple-500/50 transition-all duration-300"
-                        disabled={loading || !content}
-                      >
-                        <Image src="/download.svg" alt="Download" width={20} height={20} className='invert' />
-                      </button>
-                    )}
-                  </PDFDownloadLink>
                 </div>
               </div>
               
