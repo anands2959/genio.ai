@@ -63,7 +63,7 @@ export default function Home() {
               <a href="#features" className="text-gray-300 hover:text-white transition">Features</a>
               <a href="#stats" className="text-gray-300 hover:text-white transition">Stats</a>
               <a href="#testimonials" className="text-gray-300 hover:text-white transition">Testimonials</a>
-              <a href="#pricing" className="text-gray-300 hover:text-white transition">Pricing</a>
+              {/* <a href="#pricing" className="text-gray-300 hover:text-white transition">Pricing</a> */}
             </div>
             {!session && (
               <Link href="/auth" className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition">
@@ -194,44 +194,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Pricing Section */}
-      {/* <div id="pricing" className="container mx-auto px-4 py-16 border-t border-gray-800">
-        <h2 className="text-3xl font-bold text-center mb-12 gradient-text">Choose Your Plan</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl hover:transform hover:scale-105 transition-all duration-300 border border-gray-700/50">
-            <h3 className="text-2xl font-bold mb-4">Free</h3>
-            <div className="text-4xl font-bold mb-4">$0<span className="text-lg text-gray-400">/mo</span></div>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> 50 AI Generations</li>
-              <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Basic Templates</li>
-              <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Community Support</li>
-            </ul>
-            <button className="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded-lg transition">Get Started</button>
-          </div>
-          <div className="bg-gradient-to-b from-purple-600 to-pink-600 p-8 rounded-xl hover:transform hover:scale-105 transition-all duration-300 border border-white/10 shadow-lg shadow-purple-500/20">
-            <h3 className="text-2xl font-bold mb-4">Pro</h3>
-            <div className="text-4xl font-bold mb-4">$20<span className="text-lg text-gray-200">/mo</span></div>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-center"><span className="text-white mr-2">✓</span> Unlimited Generations</li>
-              <li className="flex items-center"><span className="text-white mr-2">✓</span> Premium Templates</li>
-              <li className="flex items-center"><span className="text-white mr-2">✓</span> Priority Support</li>
-              <li className="flex items-center"><span className="text-white mr-2">✓</span> API Access</li>
-            </ul>
-            <button className="w-full bg-white text-purple-600 py-2 rounded-lg transition hover:bg-gray-100">Get Started</button>
-          </div>
-          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl hover:transform hover:scale-105 transition-all duration-300 border border-gray-700/50">
-            <h3 className="text-2xl font-bold mb-4">Enterprise</h3>
-            <div className="text-4xl font-bold mb-4">Custom</div>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Custom Solutions</li>
-              <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Dedicated Support</li>
-              <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> SLA Agreement</li>
-              <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Custom Integration</li>
-            </ul>
-            <button className="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded-lg transition">Contact Sales</button>
-          </div>
-        </div>
-      </div> */}
+      
 
       {/* CTA Section */}
       <div className="container mx-auto px-4 py-16 animate-fade-in" style={{animationDelay: '0.4s'}}>
